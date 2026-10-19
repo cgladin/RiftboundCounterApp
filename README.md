@@ -43,7 +43,17 @@ Puis lancez :
 .\gradlew.bat assembleRelease
 ```
 
-Si aucun keystore n’est configuré, Gradle génère une release non signée. La sortie se trouve dans `app/build/outputs/apk/release/`.
+Si aucun keystore n’est configuré, Gradle génère une release non signée (`RiftboundCounter-release-unsigned.apk`). Avec un keystore, la sortie est `app/build/outputs/apk/release/RiftboundCounter-release.apk`.
+
+## Déployer sur un téléphone
+
+Branchez le téléphone avec le débogage USB activé, puis lancez le script qui compile la release et l’installe via `adb` :
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\deploy.ps1
+```
+
+Le script nécessite une release signée (voir ci-dessus) et utilise `adb` du SDK Android (`%LOCALAPPDATA%\Android\Sdk\platform-tools`) ou, à défaut, celui du `PATH`.
 
 ## Organisation du code
 
