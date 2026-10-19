@@ -59,5 +59,7 @@ data class GameState(
 fun formatTimer(remainingSeconds: Int): String {
     val absolute = kotlin.math.abs(remainingSeconds.toLong())
     val sign = if (remainingSeconds < 0) "+" else ""
-    return "%s%02d:%02d".format(sign, absolute / 60, absolute % 60)
+    val minutes = (absolute / 60).toString().padStart(2, '0')
+    val seconds = (absolute % 60).toString().padStart(2, '0')
+    return "$sign$minutes:$seconds"
 }

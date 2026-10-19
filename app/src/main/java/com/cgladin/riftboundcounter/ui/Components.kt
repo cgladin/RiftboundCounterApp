@@ -31,6 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
@@ -243,6 +244,8 @@ private val ConfettiColors = listOf(
 
 private val TimerPresetMinutes = listOf(15, 30, 45, 60)
 
+private const val CONFETTI_DURATION_SECONDS = 3f
+
 @Composable
 fun ConfettiEffect(
     modifier: Modifier = Modifier,
@@ -265,46 +268,52 @@ fun ConfettiEffect(
     }
 
     var timeSeconds by remember { mutableFloatStateOf(0f) }
+    var isAnimating by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
         var lastTime = withFrameNanos { it }
-        while (true) {
+        var elapsedSeconds = 0f
+        while (elapsedSeconds < CONFETTI_DURATION_SECONDS) {
             withFrameNanos { frameTime ->
                 val dt = (frameTime - lastTime) / 1_000_000_000f
                 lastTime = frameTime
-                timeSeconds += dt
+                elapsedSeconds += dt
+                timeSeconds = elapsedSeconds
             }
         }
+        isAnimating = false
     }
 
     Canvas(modifier = modifier.fillMaxSize()) {
-        val w = size.width
-        val h = size.height
+        if (isAnimating) {
+            val w = size.width
+            val h = size.height
 
-        particles.forEach { p ->
-            val currentY = ((p.yOffset + timeSeconds * p.speedY) % 1.3f) - 0.15f
-            val pxY = currentY * h
+            particles.forEach { p ->
+                val currentY = ((p.yOffset + timeSeconds * p.speedY) % 1.3f) - 0.15f
+                val pxY = currentY * h
 
-            val currentX = p.x + kotlin.math.sin(timeSeconds * p.swaySpeed) * p.speedX
-            val pxX = ((currentX % 1f + 1f) % 1f) * w
+                val currentX = p.x + kotlin.math.sin(timeSeconds * p.swaySpeed) * p.speedX
+                val pxX = ((currentX % 1f + 1f) % 1f) * w
 
-            val rotation = timeSeconds * p.rotationSpeed
+                val rotation = timeSeconds * p.rotationSpeed
 
-            withTransform({
-                translate(left = pxX, top = pxY)
-                rotate(degrees = rotation)
-            }) {
-                if (p.isCircle) {
-                    drawCircle(
-                        color = p.color,
-                        radius = p.size / 2,
-                    )
-                } else {
-                    drawRect(
-                        color = p.color,
-                        topLeft = Offset(-p.size / 2, -p.size / 4),
-                        size = Size(p.size, p.size / 2),
-                    )
+                withTransform({
+                    translate(left = pxX, top = pxY)
+                    rotate(degrees = rotation)
+                }) {
+                    if (p.isCircle) {
+                        drawCircle(
+                            color = p.color,
+                            radius = p.size / 2,
+                        )
+                    } else {
+                        drawRect(
+                            color = p.color,
+                            topLeft = Offset(-p.size / 2, -p.size / 4),
+                            size = Size(p.size, p.size / 2),
+                        )
+                    }
                 }
             }
         }

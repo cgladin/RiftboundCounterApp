@@ -1,6 +1,7 @@
 package com.cgladin.riftboundcounter.ui
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.cgladin.riftboundcounter.game.GameState
 import com.cgladin.riftboundcounter.game.Player
@@ -12,9 +13,15 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class CounterViewModel : ViewModel() {
+class CounterViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val _state = MutableStateFlow(GameState())
+    private val preferences = application.getSharedPreferences(PREFERENCES_NAME, 0)
+    private val _state = MutableStateFlow(
+        GameState(
+            playerOneColorHex = preferences.getLong(KEY_PLAYER_ONE_COLOR, GameState().playerOneColorHex),
+            playerTwoColorHex = preferences.getLong(KEY_PLAYER_TWO_COLOR, GameState().playerTwoColorHex),
+        ),
+    )
     val state: StateFlow<GameState> = _state.asStateFlow()
 
     private var tickerJob: Job? = null
@@ -38,11 +45,15 @@ class CounterViewModel : ViewModel() {
     fun onUpdateTimerLimit(minutes: Int) =
         _state.update { it.withTimerLimitMinutes(minutes) }
 
-    fun onUpdatePlayerOneColor(colorHex: Long) =
+    fun onUpdatePlayerOneColor(colorHex: Long) {
+        preferences.edit().putLong(KEY_PLAYER_ONE_COLOR, colorHex).apply()
         _state.update { it.withPlayerOneColor(colorHex) }
+    }
 
-    fun onUpdatePlayerTwoColor(colorHex: Long) =
+    fun onUpdatePlayerTwoColor(colorHex: Long) {
+        preferences.edit().putLong(KEY_PLAYER_TWO_COLOR, colorHex).apply()
         _state.update { it.withPlayerTwoColor(colorHex) }
+    }
 
     private fun startTimer() {
         _state.update { it.copy(isTimerRunning = true) }
@@ -61,5 +72,8 @@ class CounterViewModel : ViewModel() {
 
     private companion object {
         const val TICK_MILLIS = 1_000L
+        const val PREFERENCES_NAME = "counter_settings"
+        const val KEY_PLAYER_ONE_COLOR = "player_one_color"
+        const val KEY_PLAYER_TWO_COLOR = "player_two_color"
     }
 }
