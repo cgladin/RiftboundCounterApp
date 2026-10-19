@@ -10,6 +10,10 @@ val localProps = Properties().apply {
     if (file.exists()) file.inputStream().use { load(it) }
 }
 
+base {
+    archivesName.set("RiftboundCounter")
+}
+
 android {
     namespace = "com.cgladin.riftboundcounter"
     compileSdk = 37
