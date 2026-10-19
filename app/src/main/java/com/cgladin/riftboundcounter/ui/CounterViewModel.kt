@@ -13,6 +13,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+/**
+ * Expose l’état de la partie à l’interface et applique les actions sur les scores et le chronomètre.
+ *
+ * Les couleurs choisies sont persistées dans les préférences de l’application.
+ */
 class CounterViewModel(application: Application) : AndroidViewModel(application) {
 
     private val preferences = application.getSharedPreferences(PREFERENCES_NAME, 0)
@@ -22,34 +27,43 @@ class CounterViewModel(application: Application) : AndroidViewModel(application)
             playerTwoColorHex = preferences.getLong(KEY_PLAYER_TWO_COLOR, GameState().playerTwoColorHex),
         ),
     )
+    /** État courant de la partie, exposé en lecture seule aux observateurs Compose. */
     val state: StateFlow<GameState> = _state.asStateFlow()
 
     private var tickerJob: Job? = null
 
+    /** Modifie le score de [player] selon [delta]. */
     fun onScoreChange(player: Player, delta: Int) =
         _state.update { it.withScoreChange(player, delta) }
 
+    /** Remet les scores des joueurs à zéro sans réinitialiser le chronomètre. */
     fun onResetScores() = _state.update { it.withScoresReset() }
 
+    /** Bascule entre les modes un joueur et deux joueurs. */
     fun onTogglePlayers() = _state.update { it.copy(twoPlayers = !it.twoPlayers) }
 
+    /** Démarre le chronomètre s’il est arrêté, ou le met en pause s’il tourne. */
     fun onToggleTimer() {
         if (_state.value.isTimerRunning) stopTimer() else startTimer()
     }
 
+    /** Arrête le chronomètre et remet le temps écoulé à zéro. */
     fun onResetTimer() {
         tickerJob?.cancel()
         _state.update { it.withTimerReset() }
     }
 
+    /** Met à jour la limite du chronomètre en minutes. */
     fun onUpdateTimerLimit(minutes: Int) =
         _state.update { it.withTimerLimitMinutes(minutes) }
 
+    /** Met à jour et persiste la couleur du joueur 1. */
     fun onUpdatePlayerOneColor(colorHex: Long) {
         preferences.edit().putLong(KEY_PLAYER_ONE_COLOR, colorHex).apply()
         _state.update { it.withPlayerOneColor(colorHex) }
     }
 
+    /** Met à jour et persiste la couleur du joueur 2. */
     fun onUpdatePlayerTwoColor(colorHex: Long) {
         preferences.edit().putLong(KEY_PLAYER_TWO_COLOR, colorHex).apply()
         _state.update { it.withPlayerTwoColor(colorHex) }

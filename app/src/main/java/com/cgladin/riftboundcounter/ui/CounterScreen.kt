@@ -27,6 +27,7 @@ import com.cgladin.riftboundcounter.R
 import com.cgladin.riftboundcounter.game.GameState
 import com.cgladin.riftboundcounter.game.Player
 
+/** Collecte l’état du ViewModel et le connecte à l’écran du compteur. */
 @Composable
 fun CounterRoute(viewModel: CounterViewModel = viewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -43,6 +44,19 @@ fun CounterRoute(viewModel: CounterViewModel = viewModel()) {
     )
 }
 
+/**
+ * Affiche le chronomètre, les panneaux de score et les commandes de la partie.
+ *
+ * @param state état courant de la partie.
+ * @param onScoreChange callback d’ajustement du score d’un joueur.
+ * @param onTogglePlayers callback de bascule entre un et deux joueurs.
+ * @param onResetScores callback de remise à zéro des scores.
+ * @param onToggleTimer callback de démarrage ou de pause du chronomètre.
+ * @param onResetTimer callback de remise à zéro du chronomètre.
+ * @param onUpdateTimerLimit callback de modification de la durée du chronomètre, en minutes.
+ * @param onUpdatePlayerOneColor callback de modification de la couleur du joueur 1.
+ * @param onUpdatePlayerTwoColor callback de modification de la couleur du joueur 2.
+ */
 @Composable
 fun CounterScreen(
     state: GameState,

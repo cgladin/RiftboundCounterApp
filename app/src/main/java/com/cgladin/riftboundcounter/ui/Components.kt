@@ -78,6 +78,17 @@ internal object Palette {
     )
 }
 
+/**
+ * Affiche le temps restant et les commandes du chronomètre.
+ *
+ * @param remainingSeconds secondes avant la limite, négatives en temps supplémentaire.
+ * @param isOvertime indique si la limite est dépassée.
+ * @param isRunning indique si le chronomètre tourne.
+ * @param onToggle callback de démarrage ou de pause.
+ * @param onReset callback de remise à zéro.
+ * @param onOpenSettings callback d’ouverture des options.
+ * @param modifier modificateur Compose appliqué à la ligne.
+ */
 @Composable
 fun TimerBar(
     remainingSeconds: Int,
@@ -122,6 +133,14 @@ fun TimerBar(
     }
 }
 
+/**
+ * Affiche le score d’un joueur avec des zones tactiles pour retirer ou ajouter un point.
+ *
+ * @param score score actuel du joueur.
+ * @param color couleur de fond du panneau.
+ * @param onChange callback recevant le nombre de points à ajouter ou retirer.
+ * @param modifier modificateur Compose appliqué au panneau.
+ */
 @Composable
 fun PlayerPanel(
     score: Int,
@@ -246,6 +265,12 @@ private val TimerPresetMinutes = listOf(15, 30, 45, 60)
 
 private const val CONFETTI_DURATION_SECONDS = 3f
 
+/**
+ * Dessine une animation de confettis pendant la célébration d’une victoire.
+ *
+ * @param modifier modificateur Compose appliqué à la zone de dessin.
+ * @param particleCount nombre de particules à animer.
+ */
 @Composable
 fun ConfettiEffect(
     modifier: Modifier = Modifier,
@@ -343,6 +368,17 @@ private fun RoundSymbol(
     }
 }
 
+/**
+ * Affiche les options de durée du chronomètre et de couleur des joueurs.
+ *
+ * @param timerLimitMinutes durée courante du chronomètre, en minutes.
+ * @param playerOneColorHex couleur actuelle du joueur 1 au format ARGB.
+ * @param playerTwoColorHex couleur actuelle du joueur 2 au format ARGB.
+ * @param onTimerLimitChange callback de modification de la durée.
+ * @param onPlayerOneColorChange callback de modification de la couleur du joueur 1.
+ * @param onPlayerTwoColorChange callback de modification de la couleur du joueur 2.
+ * @param onDismiss callback de fermeture de la boîte de dialogue.
+ */
 @Composable
 fun SettingsDialog(
     timerLimitMinutes: Int,
