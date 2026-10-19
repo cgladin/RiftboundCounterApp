@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Riftbound Counter</string>
+    <string name="timer_start">Start</string>
+    <string name="timer_pause">Pause</string>
+    <string name="timer_reset">Reset</string>
+    <string name="one_player">1 joueur</string>
+    <string name="two_players">2 joueurs</string>
+    <string name="reset_scores">Remettre à zéro</string>
+    <string name="decrease_score">Retirer un point</string>
+    <string name="increase_score">Ajouter un point</string>
+    <string name="settings_title">Options</string>
+    <string name="timer_duration">Durée du timer</string>
+    <string name="player_one_color">Couleur Joueur 1</string>
+    <string name="player_two_color">Couleur Joueur 2</string>
+    <string name="close">Fermer</string>
+    <string name="victory">Victoire !</string>
+</resources>
