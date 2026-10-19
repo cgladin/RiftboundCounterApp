@@ -53,6 +53,8 @@ Branchez le téléphone avec le débogage USB activé, puis lancez le script qui
 powershell -ExecutionPolicy Bypass -File .\deploy.ps1
 ```
 
+Si l’installation échoue avec `INSTALL_FAILED_UPDATE_INCOMPATIBLE` (version déjà installée avec une autre signature, par exemple la version debug), ajoutez `-Reinstall` pour désinstaller l’application avant de l’installer. Ses données, dont les couleurs enregistrées, sont alors effacées.
+
 Le script nécessite une release signée (voir ci-dessus) et utilise `adb` du SDK Android (`%LOCALAPPDATA%\Android\Sdk\platform-tools`) ou, à défaut, celui du `PATH`.
 
 ## Organisation du code

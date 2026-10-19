@@ -1,3 +1,5 @@
+param([switch]$Reinstall)
+
 $ErrorActionPreference = "Stop"
 Set-Location $PSScriptRoot
 
