@@ -55,7 +55,7 @@ import com.cgladin.riftboundcounter.game.formatTimer
 import kotlin.random.Random
 
 internal object Palette {
-    val Background = Color(0xFF14121A)
+    val Background = Color.Black
     val OnBackground = Color.White
     val PlayerOne = Color(0xFF3DBE8B)
     val PlayerTwo = Color(0xFFA21C60)
@@ -69,12 +69,11 @@ internal object Palette {
         if (color == Orange || color.luminance() < 0.179f) Color.White else OnPlayer
 
     val ColorPresets = listOf(
+        0xFFEF7D00L, // Orange (défaut joueur 1)
+        0xFF003A51L, // Bleu (défaut joueur 2)
         0xFF3DBE8BL, // Vert
         0xFFA21C60L, // Rose
-
-        0xFF003A51L, // Bleu
         0xFFE53935L, // Rouge
-        0xFFEF7D00L, // Orange
         0xFF009688L, // Teal
         0xFF8E24AAL, // Violet
         0xFFFFC107L, // Jaune
@@ -269,7 +268,7 @@ private val ConfettiColors = listOf(
     Color(0xFFFFFFFF), // White
 )
 
-private val TimerPresetMinutes = listOf(15, 30, 45, 60)
+private val TimerPresetMinutes = listOf(30, 45, 60)
 
 private const val CONFETTI_DURATION_SECONDS = 3f
 
