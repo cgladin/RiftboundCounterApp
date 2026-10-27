@@ -35,7 +35,13 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import com.cgladin.riftboundcounter.R
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.acos
@@ -199,6 +205,7 @@ fun DicePanel(
 
     val dieColor = lerp(color, Color.White, 0.8f)
     val ink = lerp(color, Color.Black, 0.65f)
+    val rollHint = stringResource(R.string.dice_roll_hint)
     val textPaint = remember {
         android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
             textAlign = android.graphics.Paint.Align.CENTER
@@ -258,6 +265,17 @@ fun DicePanel(
                             (dragOffset.x + drag.x).coerceIn(-limitX, limitX),
                             (dragOffset.y + drag.y).coerceIn(-limitY, limitY),
                         )
+                    }
+                }
+            }
+            .semantics {
+                role = Role.Button
+                onClick(label = rollHint) {
+                    if (isRolling) {
+                        false
+                    } else {
+                        roll()
+                        true
                     }
                 }
             },
