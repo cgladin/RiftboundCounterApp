@@ -5,7 +5,9 @@ import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -160,6 +162,7 @@ private class RollSpec(
     val axis2: Vec,
     val turns2: Float,
     val fromX: Float,
+    val start: Offset,
     val bounces: Int,
     val final: Rot,
 )
@@ -190,6 +193,8 @@ fun DicePanel(
     var isRolling by remember { mutableStateOf(false) }
     var spec by remember { mutableStateOf<RollSpec?>(null) }
     val restRotation = remember { D20.faceUp(D20.faceOf(result ?: 20), 0.25f) }
+    var orientation by remember { mutableStateOf(restRotation) }
+    var dragOffset by remember { mutableStateOf(Offset.Zero) }
     var shownResult by remember { mutableStateOf(result) }
 
     val dieColor = lerp(color, Color.White, 0.8f)
@@ -203,31 +208,57 @@ fun DicePanel(
     }
     val textMatrix = remember { android.graphics.Matrix() }
 
+    fun roll(start: Offset = Offset.Zero) {
+        isRolling = true
+        shownResult = null
+        val value = Random.nextInt(1, 21)
+        val dir = if (Random.nextBoolean()) 1f else -1f
+        val thrown = start != Offset.Zero
+        val rollSpec = RollSpec(
+            axis1 = randomAxis(),
+            turns1 = 3f + Random.nextFloat() * 2f,
+            axis2 = randomAxis(),
+            turns2 = 2f + Random.nextFloat() * 2f,
+            fromX = if (thrown) 0f else dir * (0.8f + Random.nextFloat() * 0.2f),
+            start = start,
+            bounces = 3,
+            final = D20.faceUp(D20.faceOf(value), Random.nextFloat() * 2f * PI.toFloat()),
+        )
+        spec = rollSpec
+        dragOffset = Offset.Zero
+        scope.launch {
+            progress.snapTo(0f)
+            progress.animateTo(1f, tween(ROLL_MILLIS, easing = LinearOutSlowInEasing))
+            orientation = rollSpec.final
+            shownResult = value
+            onResult(value)
+            isRolling = false
+        }
+    }
+
     Box(
         modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(24.dp))
             .background(color)
-            .clickable(enabled = !isRolling) {
-                isRolling = true
-                shownResult = null
-                val value = Random.nextInt(1, 21)
-                val dir = if (Random.nextBoolean()) 1f else -1f
-                spec = RollSpec(
-                    axis1 = randomAxis(),
-                    turns1 = 3f + Random.nextFloat() * 2f,
-                    axis2 = randomAxis(),
-                    turns2 = 2f + Random.nextFloat() * 2f,
-                    fromX = dir * (0.8f + Random.nextFloat() * 0.2f),
-                    bounces = 3,
-                    final = D20.faceUp(D20.faceOf(value), Random.nextFloat() * 2f * PI.toFloat()),
-                )
-                scope.launch {
-                    progress.snapTo(0f)
-                    progress.animateTo(1f, tween(ROLL_MILLIS, easing = LinearOutSlowInEasing))
-                    shownResult = value
-                    onResult(value)
-                    isRolling = false
+            .pointerInput(Unit) {
+                detectTapGestures { if (!isRolling) roll() }
+            }
+            .pointerInput(Unit) {
+                // Le dé suit le doigt sans tourner ; il est lancé depuis sa position au relâchement.
+                detectDragGestures(
+                    onDragEnd = { if (!isRolling) roll(dragOffset) },
+                    onDragCancel = { if (!isRolling) roll(dragOffset) },
+                ) { change, drag ->
+                    change.consume()
+                    if (!isRolling) {
+                        val limitX = size.width / 2f - 0.27f * min(size.width, size.height)
+                        val limitY = size.height / 2f - 0.27f * min(size.width, size.height)
+                        dragOffset = Offset(
+                            (dragOffset.x + drag.x).coerceIn(-limitX, limitX),
+                            (dragOffset.y + drag.y).coerceIn(-limitY, limitY),
+                        )
+                    }
                 }
             },
     ) {
@@ -250,18 +281,22 @@ fun DicePanel(
             val scale = radiusPx / D20.CIRCUMRADIUS
             val rotation: Rot
             var dx = 0f
+            var dy = 0f
             var lift = 0f
-            if (s == null) {
-                rotation = restRotation
+            if (s == null || !isRolling) {
+                rotation = orientation
+                dx = dragOffset.x
+                dy = dragOffset.y
             } else {
                 val twoPi = 2f * PI.toFloat()
                 rotation = Rot.axisAngle(s.axis1, s.turns1 * twoPi * remaining) *
                     Rot.axisAngle(s.axis2, s.turns2 * twoPi * remaining) * s.final
-                dx = s.fromX * (size.width / 2f - radiusPx * 1.1f) * remaining
+                dx = s.fromX * (size.width / 2f - radiusPx * 1.1f) * remaining + s.start.x * remaining
+                dy = s.start.y * remaining
                 lift = abs(sin(s.bounces * PI.toFloat() * p)) * remaining * remaining
             }
             val cx = size.width / 2f + dx
-            val groundY = size.height / 2f
+            val groundY = size.height / 2f + dy
             val cy = groundY - lift * 0.2f * size.height
 
             // Ombre au sol, plus petite et plus pâle quand le dé est en l’air.
