@@ -133,6 +133,8 @@ fun TimerBar(
     }
 }
 
+
+
 /**
  * Affiche le score d’un joueur avec des zones tactiles pour retirer ou ajouter un point.
  *

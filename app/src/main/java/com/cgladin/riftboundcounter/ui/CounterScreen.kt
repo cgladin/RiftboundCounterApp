@@ -2,7 +2,10 @@ package com.cgladin.riftboundcounter.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.Button
+import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -70,6 +73,11 @@ fun CounterScreen(
     onUpdatePlayerTwoColor: (Long) -> Unit,
 ) {
     var showSettings by rememberSaveable { mutableStateOf(false) }
+    var diceMode by rememberSaveable { mutableStateOf(false) }
+    var diceOne by rememberSaveable { mutableStateOf<Int?>(null) }
+    var diceTwo by rememberSaveable { mutableStateOf<Int?>(null) }
+    // Le mode dé n'a de sens qu'à deux joueurs.
+    if (!state.twoPlayers && diceMode) diceMode = false
 
     Column(
         Modifier
@@ -90,22 +98,55 @@ fun CounterScreen(
         )
 
         // Le joueur 2 est retourné à 180° pour faire face à l'adversaire.
-        if (state.twoPlayers) {
-            PlayerPanel(
-                score = state.playerTwoScore,
-                color = Color(state.playerTwoColorHex),
-                onChange = { onScoreChange(Player.TWO, it) },
-                modifier = Modifier
-                    .weight(1f)
-                    .rotate(180f),
-            )
+        Box(Modifier.weight(1f)) {
+            Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                if (state.twoPlayers) {
+                    val panelModifier = Modifier
+                        .weight(1f)
+                        .rotate(180f)
+                    if (diceMode) {
+                        DicePanel(
+                            result = diceTwo,
+                            color = Color(state.playerTwoColorHex),
+                            onResult = { diceTwo = it },
+                            modifier = panelModifier,
+                        )
+                    } else {
+                        PlayerPanel(
+                            score = state.playerTwoScore,
+                            color = Color(state.playerTwoColorHex),
+                            onChange = { onScoreChange(Player.TWO, it) },
+                            modifier = panelModifier,
+                        )
+                    }
+                }
+                if (diceMode) {
+                    DicePanel(
+                        result = diceOne,
+                        color = Color(state.playerOneColorHex),
+                        onResult = { diceOne = it },
+                        modifier = Modifier.weight(1f),
+                    )
+                } else {
+                    PlayerPanel(
+                        score = state.playerOneScore,
+                        color = Color(state.playerOneColorHex),
+                        onChange = { onScoreChange(Player.ONE, it) },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+            }
+            if (state.twoPlayers) {
+                Button(
+                    onClick = {
+                        diceMode = !diceMode
+                        diceOne = null
+                        diceTwo = null
+                    },
+                    modifier = Modifier.align(Alignment.Center),
+                ) { Text(stringResource(R.string.dice_mode)) }
+            }
         }
-        PlayerPanel(
-            score = state.playerOneScore,
-            color = Color(state.playerOneColorHex),
-            onChange = { onScoreChange(Player.ONE, it) },
-            modifier = Modifier.weight(1f),
-        )
 
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             TextButton(onClick = onTogglePlayers) {
