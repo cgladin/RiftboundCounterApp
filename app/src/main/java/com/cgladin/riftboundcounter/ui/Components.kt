@@ -69,27 +69,27 @@ internal object Palette {
         if (color == Orange || color.luminance() < 0.179f) Color.White else OnPlayer
 
     val ColorPresets = listOf(
-        0xFFEF7D00L, // Orange (défaut joueur 1)
-        0xFF003A51L, // Bleu (défaut joueur 2)
-        0xFF3DBE8BL, // Vert
-        0xFFA21C60L, // Rose
-        0xFFE53935L, // Rouge
+        0xFFEF7D00L, // Orange (player one default)
+        0xFF003A51L, // Blue (player two default)
+        0xFF3DBE8BL, // Green
+        0xFFA21C60L, // Pink
+        0xFFE53935L, // Red
         0xFF009688L, // Teal
-        0xFF8E24AAL, // Violet
-        0xFFFFC107L, // Jaune
+        0xFF8E24AAL, // Purple
+        0xFFFFC107L, // Yellow
     )
 }
 
 /**
- * Affiche le temps restant et les commandes du chronomètre.
+ * Displays the remaining time and timer controls.
  *
- * @param remainingSeconds secondes avant la limite, négatives en temps supplémentaire.
- * @param isOvertime indique si la limite est dépassée.
- * @param isRunning indique si le chronomètre tourne.
- * @param onToggle callback de démarrage ou de pause.
- * @param onReset callback de remise à zéro.
- * @param onOpenSettings callback d’ouverture des options.
- * @param modifier modificateur Compose appliqué à la ligne.
+ * @param remainingSeconds seconds until the limit; negative during overtime.
+ * @param isOvertime whether the limit has been exceeded.
+ * @param isRunning whether the timer is running.
+ * @param onToggle callback to start or pause the timer.
+ * @param onReset callback to reset the timer.
+ * @param onOpenSettings callback to open the settings.
+ * @param modifier Compose modifier applied to the row.
  */
 @Composable
 fun TimerBar(
@@ -141,12 +141,12 @@ fun TimerBar(
 
 
 /**
- * Affiche le score d’un joueur avec des zones tactiles pour retirer ou ajouter un point.
+ * Displays a player's score with touch targets to remove or add a point.
  *
- * @param score score actuel du joueur.
- * @param color couleur de fond du panneau.
- * @param onChange callback recevant le nombre de points à ajouter ou retirer.
- * @param modifier modificateur Compose appliqué au panneau.
+ * @param score player's current score.
+ * @param color panel background color.
+ * @param onChange callback receiving the number of points to add or remove.
+ * @param modifier Compose modifier applied to the panel.
  */
 @Composable
 fun PlayerPanel(
@@ -171,7 +171,7 @@ fun PlayerPanel(
         }
 
         Row(Modifier.fillMaxSize()) {
-            // Côté gauche : diminue le score en appuyant n'importe où sur la moitié gauche
+            // Left side: decrease the score by tapping anywhere on the left half.
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -191,7 +191,7 @@ fun PlayerPanel(
                 )
             }
 
-            // Côté droit : augmente le score en appuyant n'importe où sur la moitié droite
+            // Right side: increase the score by tapping anywhere on the right half.
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -212,7 +212,7 @@ fun PlayerPanel(
             }
         }
 
-        // Score centré par-dessus et badge de victoire
+        // Center the score and victory badge on top of the panel.
         Column(
             modifier = Modifier.align(Alignment.Center),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -273,10 +273,10 @@ private val TimerPresetMinutes = listOf(30, 45, 60)
 private const val CONFETTI_DURATION_SECONDS = 3f
 
 /**
- * Dessine une animation de confettis pendant la célébration d’une victoire.
+ * Draws a confetti animation to celebrate a victory.
  *
- * @param modifier modificateur Compose appliqué à la zone de dessin.
- * @param particleCount nombre de particules à animer.
+ * @param modifier Compose modifier applied to the drawing area.
+ * @param particleCount number of particles to animate.
  */
 @Composable
 fun ConfettiEffect(
@@ -376,15 +376,15 @@ private fun RoundSymbol(
 }
 
 /**
- * Affiche les options de durée du chronomètre et de couleur des joueurs.
+ * Displays timer duration and player color settings.
  *
- * @param timerLimitMinutes durée courante du chronomètre, en minutes.
- * @param playerOneColorHex couleur actuelle du joueur 1 au format ARGB.
- * @param playerTwoColorHex couleur actuelle du joueur 2 au format ARGB.
- * @param onTimerLimitChange callback de modification de la durée.
- * @param onPlayerOneColorChange callback de modification de la couleur du joueur 1.
- * @param onPlayerTwoColorChange callback de modification de la couleur du joueur 2.
- * @param onDismiss callback de fermeture de la boîte de dialogue.
+ * @param timerLimitMinutes current timer duration in minutes.
+ * @param playerOneColorHex player one's current color in ARGB format.
+ * @param playerTwoColorHex player two's current color in ARGB format.
+ * @param onTimerLimitChange callback to change the duration.
+ * @param onPlayerOneColorChange callback to change player one's color.
+ * @param onPlayerTwoColorChange callback to change player two's color.
+ * @param onDismiss callback to close the dialog.
  */
 @Composable
 fun SettingsDialog(
@@ -410,7 +410,7 @@ fun SettingsDialog(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                // Section 1: Durée du timer
+                // Section 1: Timer duration
                 Text(
                     stringResource(R.string.timer_duration),
                     fontWeight = FontWeight.SemiBold,
@@ -458,7 +458,7 @@ fun SettingsDialog(
 
                 HorizontalDivider()
 
-                // Section 2: Couleur du Joueur 1
+                // Section 2: Player one color
                 Text(
                     stringResource(R.string.player_one_color),
                     fontWeight = FontWeight.SemiBold,
@@ -471,7 +471,7 @@ fun SettingsDialog(
 
                 HorizontalDivider()
 
-                // Section 3: Couleur du Joueur 2
+                // Section 3: Player two color
                 Text(
                     stringResource(R.string.player_two_color),
                     fontWeight = FontWeight.SemiBold,

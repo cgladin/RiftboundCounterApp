@@ -42,7 +42,7 @@ import com.cgladin.riftboundcounter.R
 import com.cgladin.riftboundcounter.game.GameState
 import com.cgladin.riftboundcounter.game.Player
 
-/** Collecte l’état du ViewModel et le connecte à l’écran du compteur. */
+/** Collects ViewModel state and connects it to the counter screen. */
 @Composable
 fun CounterRoute(viewModel: CounterViewModel = viewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -59,7 +59,7 @@ fun CounterRoute(viewModel: CounterViewModel = viewModel()) {
     )
 }
 
-/** Bouton central de bascule points/dé, affiché avec un fondu et un zoom en mode deux joueurs. */
+/** Central points/dice toggle button, shown with a fade and zoom in two-player mode. */
 @Composable
 private fun DiceToggleButton(
     visible: Boolean,
@@ -82,7 +82,7 @@ private fun DiceToggleButton(
     }
 }
 
-/** Carte à deux faces : [front] puis [back] après un retournement animé autour de l’axe vertical. */
+/** Two-sided card that flips around the vertical axis from [front] to [back]. */
 @Composable
 private fun FlipCard(
     flipped: Boolean,
@@ -103,7 +103,7 @@ private fun FlipCard(
         },
     ) {
         if (showBack) {
-            // Contre-rotation pour que la face arrière ne soit pas en miroir.
+            // Counter-rotate the back face so it is not mirrored.
             back(Modifier.fillMaxSize().graphicsLayer { rotationY = 180f })
         } else {
             front(Modifier.fillMaxSize())
@@ -112,17 +112,17 @@ private fun FlipCard(
 }
 
 /**
- * Affiche le chronomètre, les panneaux de score et les commandes de la partie.
+ * Displays the timer, score panels, and game controls.
  *
- * @param state état courant de la partie.
- * @param onScoreChange callback d’ajustement du score d’un joueur.
- * @param onTogglePlayers callback de bascule entre un et deux joueurs.
- * @param onResetScores callback de remise à zéro des scores.
- * @param onToggleTimer callback de démarrage ou de pause du chronomètre.
- * @param onResetTimer callback de remise à zéro du chronomètre.
- * @param onUpdateTimerLimit callback de modification de la durée du chronomètre, en minutes.
- * @param onUpdatePlayerOneColor callback de modification de la couleur du joueur 1.
- * @param onUpdatePlayerTwoColor callback de modification de la couleur du joueur 2.
+ * @param state current game state.
+ * @param onScoreChange callback to adjust a player's score.
+ * @param onTogglePlayers callback to switch between one- and two-player modes.
+ * @param onResetScores callback to reset the scores.
+ * @param onToggleTimer callback to start or pause the timer.
+ * @param onResetTimer callback to reset the timer.
+ * @param onUpdateTimerLimit callback to update the timer duration in minutes.
+ * @param onUpdatePlayerOneColor callback to change player one's color.
+ * @param onUpdatePlayerTwoColor callback to change player two's color.
  */
 @Composable
 fun CounterScreen(
@@ -140,7 +140,7 @@ fun CounterScreen(
     var diceMode by rememberSaveable { mutableStateOf(false) }
     var diceOne by rememberSaveable { mutableStateOf<Int?>(null) }
     var diceTwo by rememberSaveable { mutableStateOf<Int?>(null) }
-    // Le mode dé n'a de sens qu'à deux joueurs.
+    // Dice mode is only available in two-player mode.
     if (!state.twoPlayers && diceMode) diceMode = false
 
     Column(
@@ -214,7 +214,7 @@ fun CounterScreen(
 
         Box(Modifier.weight(1f)) {
             if (landscape) {
-                // En paysage, les deux cartes sont côte à côte, sans retournement.
+                // In landscape, the cards are side by side and neither is flipped.
                 Row(Modifier.fillMaxSize()) {
                     playerOneCard(Modifier.weight(1f).fillMaxHeight())
                     if (secondPanelFraction > 0f) {
@@ -228,7 +228,7 @@ fun CounterScreen(
                     }
                 }
             } else {
-                // Le joueur 2 est retourné à 180° pour faire face à l'adversaire.
+                // Rotate player two's panel by 180 degrees to face the opponent.
                 Column(Modifier.fillMaxSize()) {
                     if (secondPanelFraction > 0f) {
                         playerTwoCard(

@@ -7,7 +7,7 @@ import androidx.activity.compose.setContent
 import com.cgladin.riftboundcounter.ui.CounterRoute
 
 /**
- * Activité principale qui affiche le compteur et garde l’écran allumé pendant une partie.
+ * Main activity that displays the counter and keeps the screen on during a game.
  */
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

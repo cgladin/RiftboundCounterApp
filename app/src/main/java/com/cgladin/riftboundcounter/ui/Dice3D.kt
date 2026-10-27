@@ -68,7 +68,7 @@ private class Vec(val x: Float, val y: Float, val z: Float) {
     }
 }
 
-/** Matrice de rotation 3x3, stockée ligne par ligne. */
+/** 3x3 rotation matrix stored row by row. */
 private class Rot(val m: FloatArray) {
     operator fun times(o: Rot): Rot {
         val r = FloatArray(9)
@@ -103,7 +103,7 @@ private class Rot(val m: FloatArray) {
     }
 }
 
-/** Icosaèdre régulier : 12 sommets, 20 faces numérotées avec des faces opposées de somme 21. */
+/** Regular icosahedron: 12 vertices and 20 faces, with opposite face values summing to 21. */
 private object D20 {
     private const val EDGE_SQUARED = 4f
     const val CIRCUMRADIUS = 1.9021f
@@ -148,7 +148,7 @@ private object D20 {
 
     fun faceOf(value: Int) = numbers.indexOf(value)
 
-    /** Rotation qui place la face [face] face à la caméra, avec une rotation de [roll] dans le plan. */
+    /** Rotation that faces [face] toward the camera with an in-plane rotation of [roll]. */
     fun faceUp(face: Int, roll: Float): Rot {
         val n = normals[face]
         val z = Vec(0f, 0f, 1f)
@@ -180,12 +180,12 @@ private fun randomAxis() = Vec(
 ).let { if (it.dot(it) < 0.01f) Vec(1f, 0f, 0f) else it }
 
 /**
- * Affiche un dé à 20 faces en 3D ; chaque appui le lance dans le panneau puis affiche le résultat.
+ * Displays a 3D twenty-sided die; tapping it rolls the die within the panel and shows the result.
  *
- * @param result résultat du dernier lancer, ou null si le dé n’a pas encore été lancé.
- * @param color couleur de fond du panneau.
- * @param onResult callback appelé avec le résultat à la fin du lancer.
- * @param modifier modificateur Compose appliqué au panneau.
+ * @param result result of the last roll, or null if the die has not been rolled yet.
+ * @param color panel background color.
+ * @param onResult callback invoked with the result when the roll finishes.
+ * @param modifier Compose modifier applied to the panel.
  */
 @Composable
 fun DicePanel(
@@ -252,7 +252,7 @@ fun DicePanel(
                 detectTapGestures { if (!isRolling) roll() }
             }
             .pointerInput(Unit) {
-                // Le dé suit le doigt sans tourner ; il est lancé depuis sa position au relâchement.
+                // The die follows the finger without rotating, then rolls from that position on release.
                 detectDragGestures(
                     onDragEnd = { if (!isRolling) roll(dragOffset) },
                     onDragCancel = { if (!isRolling) roll(dragOffset) },
@@ -317,7 +317,7 @@ fun DicePanel(
             val groundY = size.height / 2f + dy
             val cy = groundY - lift * 0.2f * size.height
 
-            // Ombre au sol, plus petite et plus pâle quand le dé est en l’air.
+            // The ground shadow becomes smaller and lighter while the die is airborne.
             val shadowW = radiusPx * 1.5f * (1f - 0.3f * lift)
             val shadowH = radiusPx * 0.3f * (1f - 0.3f * lift)
             drawOval(

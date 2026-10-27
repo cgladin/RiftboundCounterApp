@@ -1,70 +1,71 @@
 # Riftbound Counter
 
-Application Android de comptage de points pour les parties de Riftbound. Elle permet de suivre un ou deux joueurs, de gérer un chronomètre de partie et de personnaliser les couleurs des joueurs.
+An Android score counter for Riftbound games. Track one or two players, manage a game timer, and customize player colors.
 
-## Fonctionnalités
+## Features
 
-- Mode un joueur ou deux joueurs, avec le panneau du second joueur retourné pour jouer face à face.
-- Scores limités de 0 à 8 ; l’atteinte de 8 points déclenche une animation de victoire.
-- Chronomètre configurable, avec démarrage, pause, remise à zéro et affichage du temps supplémentaire.
-- Choix de couleur pour chaque joueur ; les couleurs sont conservées entre les lancements de l’application.
-- Interface conçue avec Jetpack Compose et Material 3.
+- One-player and two-player modes, with the second player's panel flipped for face-to-face play.
+- Scores from 0 to 8; reaching 8 points triggers a victory animation.
+- Configurable timer with start, pause, reset, and overtime display.
+- Custom colors for each player, persisted between app launches.
+- User interface built with Jetpack Compose and Material 3.
 
-## Prérequis
+## Requirements
 
-- Android Studio et un JDK 17.
-- Android SDK 37 pour compiler ; l’application fonctionne à partir d’Android 7.0 (API 24).
+- Android Studio and JDK 17.
+- Android SDK 37 to build; the app supports Android 7.0 (API 24) and later.
 
-## Compilation et tests
+## Build and test
 
-Depuis la racine du projet, sous Windows :
+From the project root on Windows:
 
 ```powershell
 .\gradlew.bat assembleDebug
 .\gradlew.bat testDebugUnitTest
 ```
 
-L’APK de débogage est généré dans `app/build/outputs/apk/debug/`.
+The debug APK is generated in `app/build/outputs/apk/debug/`.
 
-## Générer une version release signée
+## Build a signed release
 
-La signature release est facultative et configurée localement via `local.properties`, qui ne doit pas être partagé ni commité. Ajoutez-y les propriétés suivantes avec les chemins et secrets de votre keystore :
+Release signing is optional and configured locally through `local.properties`, which should not be shared or committed. Add the following properties with the paths and secrets for your keystore:
 
 ```properties
-RELEASE_STORE_FILE=chemin/vers/keystore.jks
-RELEASE_STORE_PASSWORD=mot-de-passe-du-keystore
-RELEASE_KEY_ALIAS=alias-de-cle
-RELEASE_KEY_PASSWORD=mot-de-passe-de-la-cle
+RELEASE_STORE_FILE=path/to/keystore.jks
+RELEASE_STORE_PASSWORD=keystore-password
+RELEASE_KEY_ALIAS=key-alias
+RELEASE_KEY_PASSWORD=key-password
 ```
 
-Puis lancez :
+Then run:
 
 ```powershell
 .\gradlew.bat assembleRelease
 ```
 
-Si aucun keystore n’est configuré, Gradle génère une release non signée (`RiftboundCounter-release-unsigned.apk`). Avec un keystore, la sortie est `app/build/outputs/apk/release/RiftboundCounter-release.apk`.
+If no keystore is configured, Gradle generates an unsigned release (`RiftboundCounter-release-unsigned.apk`). With a keystore, the output is `app/build/outputs/apk/release/RiftboundCounter-release.apk`.
 
-## Déployer sur un téléphone
+## Deploy to a phone
 
-Branchez le téléphone avec le débogage USB activé, puis lancez le script qui compile la release et l’installe via `adb` :
+Connect a phone with USB debugging enabled, then run the script to build the release and install it with `adb`:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\deploy.ps1
 ```
 
-Si l’installation échoue avec `INSTALL_FAILED_UPDATE_INCOMPATIBLE` (version déjà installée avec une autre signature, par exemple la version debug), ajoutez `-Reinstall` pour désinstaller l’application avant de l’installer. Ses données, dont les couleurs enregistrées, sont alors effacées.
+If installation fails with `INSTALL_FAILED_UPDATE_INCOMPATIBLE` (for example, because a version with a different signature is already installed), add `-Reinstall` to uninstall the app before installing it. This will erase its data, including saved colors.
 
-Le script nécessite une release signée (voir ci-dessus) et utilise `adb` du SDK Android (`%LOCALAPPDATA%\Android\Sdk\platform-tools`) ou, à défaut, celui du `PATH`.
+The script requires a signed release (see above) and uses `adb` from the Android SDK (`%LOCALAPPDATA%\Android\Sdk\platform-tools`) or, if unavailable, from `PATH`.
 
-## Organisation du code
+## Code organization
 
-- `game/GameState.kt` : état immuable de la partie, règles de score et formatage du chronomètre.
-- `ui/CounterViewModel.kt` : actions de l’interface, état observable et persistance des couleurs.
-- `ui/CounterScreen.kt` : écran principal et liaison entre l’interface et le ViewModel.
-- `ui/Components.kt` : composants Compose du chronomètre, des panneaux joueurs, des options et des animations.
-- `MainActivity.kt` : point d’entrée Android.
+- `game/GameState.kt`: immutable game state, score rules, and timer formatting.
+- `ui/CounterViewModel.kt`: UI actions, observable state, and color persistence.
+- `ui/CounterScreen.kt`: main screen and connection to the ViewModel.
+- `ui/Components.kt`: Compose timer, player panels, settings, and animations.
+- `ui/Dice3D.kt`: 3D twenty-sided die rendering and interaction.
+- `MainActivity.kt`: Android entry point.
 
-## Licence
+## License
 
-Voir le fichier [LICENSE](LICENSE).
+See [LICENSE](LICENSE).
