@@ -1,10 +1,19 @@
 package com.cgladin.riftboundcounter.ui
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -45,6 +54,58 @@ fun CounterRoute(viewModel: CounterViewModel = viewModel()) {
         onUpdatePlayerOneColor = viewModel::onUpdatePlayerOneColor,
         onUpdatePlayerTwoColor = viewModel::onUpdatePlayerTwoColor,
     )
+}
+
+/** Bouton central de bascule points/dé, affiché avec un fondu et un zoom en mode deux joueurs. */
+@Composable
+private fun DiceToggleButton(
+    visible: Boolean,
+    diceMode: Boolean,
+    modifier: Modifier,
+    onClick: () -> Unit,
+) {
+    AnimatedVisibility(
+        visible = visible,
+        modifier = modifier,
+        enter = fadeIn(tween(450)) + scaleIn(tween(450)),
+        exit = fadeOut(tween(300)) + scaleOut(tween(300)),
+    ) {
+        Button(
+            onClick = onClick,
+            colors = ButtonDefaults.buttonColors(containerColor = Palette.Accent, contentColor = Palette.OnPlayer),
+        ) {
+            Text(stringResource(if (diceMode) R.string.points_mode else R.string.dice_mode))
+        }
+    }
+}
+
+/** Carte à deux faces : [front] puis [back] après un retournement animé autour de l’axe vertical. */
+@Composable
+private fun FlipCard(
+    flipped: Boolean,
+    modifier: Modifier,
+    front: @Composable (Modifier) -> Unit,
+    back: @Composable (Modifier) -> Unit,
+) {
+    val angle by animateFloatAsState(
+        targetValue = if (flipped) 180f else 0f,
+        animationSpec = tween(600),
+        label = "cardFlip",
+    )
+    val showBack = angle > 90f
+    Box(
+        modifier.graphicsLayer {
+            rotationY = angle
+            cameraDistance = 12f * density
+        },
+    ) {
+        if (showBack) {
+            // Contre-rotation pour que la face arrière ne soit pas en miroir.
+            back(Modifier.fillMaxSize().graphicsLayer { rotationY = 180f })
+        } else {
+            front(Modifier.fillMaxSize())
+        }
+    }
 }
 
 /**
@@ -99,53 +160,70 @@ fun CounterScreen(
 
         // Le joueur 2 est retourné à 180° pour faire face à l'adversaire.
         Box(Modifier.weight(1f)) {
-            Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                if (state.twoPlayers) {
-                    val panelModifier = Modifier
-                        .weight(1f)
-                        .rotate(180f)
-                    if (diceMode) {
-                        DicePanel(
-                            result = diceTwo,
-                            color = Color(state.playerTwoColorHex),
-                            onResult = { diceTwo = it },
-                            modifier = panelModifier,
-                        )
-                    } else {
+            Column(Modifier.fillMaxSize()) {
+                val secondPanelFraction by animateFloatAsState(
+                    targetValue = if (state.twoPlayers) 1f else 0f,
+                    animationSpec = tween(450),
+                    label = "secondPanel",
+                )
+                if (secondPanelFraction > 0f) {
+                    FlipCard(
+                        flipped = diceMode,
+                        modifier = Modifier
+                            .weight(secondPanelFraction.coerceAtLeast(0.001f))
+                            .fillMaxWidth()
+                            .padding(bottom = 12.dp * secondPanelFraction)
+                            .graphicsLayer { alpha = secondPanelFraction }
+                            .rotate(180f),
+                        front = { m ->
+                            PlayerPanel(
+                                score = state.playerTwoScore,
+                                color = Color(state.playerTwoColorHex),
+                                onChange = { onScoreChange(Player.TWO, it) },
+                                modifier = m,
+                            )
+                        },
+                        back = { m ->
+                            DicePanel(
+                                result = diceTwo,
+                                color = Color(state.playerTwoColorHex),
+                                onResult = { diceTwo = it },
+                                modifier = m,
+                            )
+                        },
+                    )
+                }
+                FlipCard(
+                    flipped = diceMode,
+                    modifier = Modifier.weight(1f),
+                    front = { m ->
                         PlayerPanel(
-                            score = state.playerTwoScore,
-                            color = Color(state.playerTwoColorHex),
-                            onChange = { onScoreChange(Player.TWO, it) },
-                            modifier = panelModifier,
+                            score = state.playerOneScore,
+                            color = Color(state.playerOneColorHex),
+                            onChange = { onScoreChange(Player.ONE, it) },
+                            modifier = m,
                         )
-                    }
-                }
-                if (diceMode) {
-                    DicePanel(
-                        result = diceOne,
-                        color = Color(state.playerOneColorHex),
-                        onResult = { diceOne = it },
-                        modifier = Modifier.weight(1f),
-                    )
-                } else {
-                    PlayerPanel(
-                        score = state.playerOneScore,
-                        color = Color(state.playerOneColorHex),
-                        onChange = { onScoreChange(Player.ONE, it) },
-                        modifier = Modifier.weight(1f),
-                    )
-                }
-            }
-            if (state.twoPlayers) {
-                Button(
-                    onClick = {
-                        diceMode = !diceMode
-                        diceOne = null
-                        diceTwo = null
                     },
-                    modifier = Modifier.align(Alignment.Center),
-                ) { Text(stringResource(R.string.dice_mode)) }
+                    back = { m ->
+                        DicePanel(
+                            result = diceOne,
+                            color = Color(state.playerOneColorHex),
+                            onResult = { diceOne = it },
+                            modifier = m,
+                        )
+                    },
+                )
             }
+            DiceToggleButton(
+                visible = state.twoPlayers,
+                diceMode = diceMode,
+                modifier = Modifier.align(Alignment.Center),
+                onClick = {
+                    diceMode = !diceMode
+                    diceOne = null
+                    diceTwo = null
+                },
+            )
         }
 
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {

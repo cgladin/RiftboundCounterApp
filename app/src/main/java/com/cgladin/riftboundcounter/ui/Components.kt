@@ -62,16 +62,19 @@ internal object Palette {
     val Overtime = Color(0xFFE53935)
     val OnPlayer = Color(0xFF1B1B1B)
     val ButtonOverlay = Color(0x33000000)
+    val Accent = Color(0xFFF6CA37)
 
+    private val Orange = Color(0xFFEF7D00)
     fun onPlayer(color: Color): Color =
-        if (color.luminance() < 0.179f) Color.White else OnPlayer
+        if (color == Orange || color.luminance() < 0.179f) Color.White else OnPlayer
 
     val ColorPresets = listOf(
         0xFF3DBE8BL, // Vert
         0xFFA21C60L, // Rose
-        0xFF3D8BEBL, // Bleu
+
+        0xFF003A51L, // Bleu
         0xFFE53935L, // Rouge
-        0xFFFF9800L, // Orange
+        0xFFEF7D00L, // Orange
         0xFF009688L, // Teal
         0xFF8E24AAL, // Violet
         0xFFFFC107L, // Jaune
@@ -115,7 +118,10 @@ fun TimerBar(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Button(onClick = onToggle) {
+            Button(
+                onClick = onToggle,
+                colors = ButtonDefaults.buttonColors(containerColor = Palette.Accent, contentColor = Palette.OnPlayer),
+            ) {
                 Text(stringResource(if (isRunning) R.string.timer_pause else R.string.timer_start))
             }
             Button(

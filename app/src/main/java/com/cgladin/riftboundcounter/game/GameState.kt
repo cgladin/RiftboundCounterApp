@@ -15,8 +15,8 @@ data class GameState(
     val elapsedSeconds: Int = 0,
     val isTimerRunning: Boolean = false,
     val timerLimitSeconds: Int = DEFAULT_TIMER_LIMIT_SECONDS,
-    val playerOneColorHex: Long = 0xFFA21C60L,
-    val playerTwoColorHex: Long = 0xFF3DBE8BL,
+    val playerOneColorHex: Long = 0xFFEF7D00L,
+    val playerTwoColorHex: Long = 0xFF003A51L,
 ) {
     /** Nombre de secondes avant la limite ; devient négatif pendant le temps supplémentaire. */
     val remainingSeconds: Int get() = timerLimitSeconds - elapsedSeconds

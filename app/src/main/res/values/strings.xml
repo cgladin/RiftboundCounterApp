@@ -4,6 +4,7 @@
     <string name="timer_pause">Pause</string>
     <string name="timer_reset">Reset</string>
     <string name="dice_mode">Dé 20</string>
+    <string name="points_mode">Points</string>
     <string name="dice_roll_hint">Touchez pour lancer</string>
     <string name="one_player">1 joueur</string>
     <string name="two_players">2 joueurs</string>

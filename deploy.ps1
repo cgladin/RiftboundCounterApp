@@ -15,6 +15,11 @@ if (-not (Test-Path $apk)) {
     throw "APK signe introuvable ($apk). Verifiez la config de signature dans local.properties."
 }
 
+if ($Reinstall) {
+    Write-Host "Desinstallation de la version existante..."
+    & $adb uninstall com.cgladin.riftboundcounter
+}
+
 Write-Host "Installation sur le telephone..."
 & $adb install -r $apk
 if ($LASTEXITCODE -ne 0) { throw "Echec de l'installation (telephone connecte et debogage USB active ?)" }
